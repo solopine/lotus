@@ -18,7 +18,7 @@ jobs:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         stale-issue-message: 'Oops, seems like we needed more information for this issue, please comment with more details or this issue will be closed in 24 hours.'
         close-issue-message: 'This issue was closed because it is missing author input.'
-        stale-pr-message: 'Thank you for submitting the PR and contributing to lotus! Lotus maintainers need more of your input before merging it, please address the suggested changes or reply to the comments or this PR will be closed in 48 hours. You are always more than welcomed to reopen the PR later as well!'
+        stale-pr-message: 'Thank you for submitting the PR and contributing to lotus! Lotus maintainers need more of your input before merging it, please address the suggested changes or reply to the comments or this PR will be closed in 48 hours. You are always more than welcome to reopen the PR later as well!'
         close-pr-message: 'This PR was closed because it is missing author input. Please feel free to reopen the PR when you get to it! Thank you for your interest in contributing to lotus!'
         stale-issue-label: 'kind/stale'
         stale-pr-label: 'kind/stale'
@@ -30,4 +30,3 @@ jobs:
         remove-stale-when-updated: true
         enable-statistics: true
        
-
