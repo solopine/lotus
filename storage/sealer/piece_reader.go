@@ -172,7 +172,7 @@ func (p *pieceReader) readSeqReader(b []byte) (n int, err error) {
 		}
 
 		p.rAt = off
-		p.r, err = p.getReader(uint64(p.rAt), uint64(p.len))
+		p.r, err = p.getReader(uint64(p.rAt), uint64(p.len)-uint64(p.rAt))
 		p.br = bufio.NewReaderSize(p.r, ReadBuf)
 		if err != nil {
 			return 0, xerrors.Errorf("getting backing reader: %w", err)
