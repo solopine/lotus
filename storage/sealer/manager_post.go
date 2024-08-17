@@ -206,7 +206,9 @@ func (m *Manager) generateWindowPoSt(ctx context.Context, minerID abi.ActorID, p
 		return nil, skipped, multierr.Append(xerrors.Errorf("some sectors (%d) were skipped", len(skipped)), retErr)
 	}
 
+	log.Infof("----MergeWindowPoStPartitionProofs.before")
 	postProofs, err := ffi.MergeWindowPoStPartitionProofs(ppt, proofList)
+	log.Infof("----MergeWindowPoStPartitionProofs.after")
 	if err != nil {
 		return nil, skipped, xerrors.Errorf("merge windowPoSt partition proofs: %v", err)
 	}
@@ -222,10 +224,17 @@ func (m *Manager) generatePartitionWindowPost(ctx context.Context, spt abi.Regis
 
 	var result storiface.WindowPoStResult
 	err := m.windowPoStSched.Schedule(ctx, true, spt, func(ctx context.Context, w Worker) error {
+		ws, err := w.Session(ctx)
+		if err != nil {
+			return xerrors.Errorf("----w.Session: %w", err)
+		}
+
+		log.Infow("----GenerateWindowPoSt.before", "index", partIndex, "worker", ws)
 		out, err := w.GenerateWindowPoSt(ctx, ppt, minerID, sc, partIndex, randomness)
 		if err != nil {
 			return xerrors.Errorf("post worker: %w", err)
 		}
+		log.Infow("----GenerateWindowPoSt.after", "index", partIndex, "worker", ws)
 
 		result = out
 		return nil
