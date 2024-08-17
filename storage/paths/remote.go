@@ -753,7 +753,7 @@ func (r *Remote) Reader(ctx context.Context, s storiface.SectorRef, offset, size
 			return func(startOffsetAligned, endOffsetAligned storiface.PaddedByteIndex) (io.ReadCloser, error) {
 				// readRemote fetches a reader that we can use to read the unsealed piece from the remote worker.
 				// It uses a ranged HTTP query to ensure we ONLY read the unsealed piece and not the entire unsealed file.
-				rd, err := r.readRemote(ctx, url, offset+abi.PaddedPieceSize(startOffsetAligned), offset+abi.PaddedPieceSize(endOffsetAligned))
+				rd, err := r.readRemote(ctx, url, offset+abi.PaddedPieceSize(startOffsetAligned), abi.PaddedPieceSize(endOffsetAligned-startOffsetAligned))
 				if err != nil {
 					log.Warnw("reading from remote", "url", url, "error", err)
 					return nil, err
