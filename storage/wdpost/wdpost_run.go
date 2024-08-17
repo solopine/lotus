@@ -219,19 +219,19 @@ func (s *WindowPoStScheduler) checkSectors(ctx context.Context, check bitfield.B
 		return bitfield.BitField{}, xerrors.Errorf("failed to convert to v1_1 post proof: %w", err)
 	}
 
-	bad, err := s.faultTracker.CheckProvable(ctx, pp, tocheck, func(ctx context.Context, id abi.SectorID) (cid.Cid, bool, error) {
-		s, ok := sectors[id.Number]
-		if !ok {
-			return cid.Undef, false, xerrors.Errorf("sealed CID not found")
-		}
-		return s.sealed, s.update, nil
-	})
-	if err != nil {
-		return bitfield.BitField{}, xerrors.Errorf("checking provable sectors: %w", err)
-	}
-	for id := range bad {
-		delete(sectors, id.Number)
-	}
+	//bad, err := s.faultTracker.CheckProvable(ctx, pp, tocheck, func(ctx context.Context, id abi.SectorID) (cid.Cid, bool, error) {
+	//	s, ok := sectors[id.Number]
+	//	if !ok {
+	//		return cid.Undef, false, xerrors.Errorf("sealed CID not found")
+	//	}
+	//	return s.sealed, s.update, nil
+	//})
+	//if err != nil {
+	//	return bitfield.BitField{}, xerrors.Errorf("checking provable sectors: %w", err)
+	//}
+	//for id := range bad {
+	//	delete(sectors, id.Number)
+	//}
 
 	log.Warnw("Checked sectors", "checked", len(tocheck), "good", len(sectors))
 
