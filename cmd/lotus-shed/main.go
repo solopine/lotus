@@ -91,6 +91,7 @@ func main() {
 		mismatchesCmd,
 		blockCmd,
 		adlCmd,
+		txstorageCmd,
 	}
 
 	app := &cli.App{
