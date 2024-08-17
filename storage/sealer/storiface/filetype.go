@@ -80,7 +80,7 @@ const FSOverheadDen = 10
 
 // FSOverheadSeal is a map that represents the overheads for different SectorFileType in sectors which are being sealed.
 var FSOverheadSeal = map[SectorFileType]int{ // 10x overheads
-	FTUnsealed:    FSOverheadDen,
+	FTUnsealed:    0,
 	FTSealed:      FSOverheadDen,
 	FTUpdate:      FSOverheadDen,
 	FTUpdateCache: FSOverheadDen*2 + 1,
