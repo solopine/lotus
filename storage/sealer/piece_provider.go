@@ -31,6 +31,7 @@ type PieceProvider interface {
 	// The number of bytes that can be read is pieceSize-startOffset
 	ReadPiece(ctx context.Context, sector storiface.SectorRef, pieceOffset storiface.UnpaddedByteIndex, pieceSize abi.UnpaddedPieceSize, ticket abi.SealRandomness, unsealed cid.Cid) (storiface.Reader, bool, error)
 	IsUnsealed(ctx context.Context, sector storiface.SectorRef, offset storiface.UnpaddedByteIndex, size abi.UnpaddedPieceSize) (bool, error)
+	ReadTxPieceRecords(ctx context.Context, sector storiface.SectorRef) (io.ReadCloser, error)
 }
 
 var _ PieceProvider = &pieceProvider{}
@@ -114,11 +115,15 @@ func (p *pieceProvider) tryReadUnsealedPiece(ctx context.Context, pc cid.Cid, se
 
 			buf := pool.Get(fr32.BufSize(pieceSize.Padded()))
 
-			upr, err := fr32.NewUnpadReaderBuf(r, pieceSize.Padded(), buf)
+			// use sz = pieceSize.Padded() just for satisfy 2^n for fr32.NewUnpadReaderBuf
+			upr0, err := fr32.NewUnpadReaderBuf(r, pieceSize.Padded(), buf)
 			if err != nil {
 				r.Close() // nolint
 				return nil, xerrors.Errorf("creating unpadded reader: %w", err)
 			}
+
+			pSize := abi.PaddedPieceSize(endOffsetAligned.Padded() - startOffsetAligned.Padded())
+			upr := io.LimitReader(upr0, int64(pSize.Unpadded()))
 
 			bir := bufio.NewReaderSize(upr, 127)
 			if startOffset > uint64(startOffsetAligned) {
@@ -223,6 +228,10 @@ func (p *pieceProvider) ReadPiece(ctx context.Context, sector storiface.SectorRe
 	log.Debugf("returning reader to read unsealed piece, sector=%+v, pieceOffset=%d, size=%d", sector, pieceOffset, size)
 
 	return r, uns, nil
+}
+
+func (p *pieceProvider) ReadTxPieceRecords(ctx context.Context, sector storiface.SectorRef) (io.ReadCloser, error) {
+	return p.storage.ReaderSeq(ctx, sector, storiface.FTUnsealed)
 }
 
 var _ storiface.Reader = &pieceReader{}

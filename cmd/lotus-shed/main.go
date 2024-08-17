@@ -91,6 +91,7 @@ func main() {
 		blockCmd,
 		adlCmd,
 		f3Cmd,
+		txstorageCmd,
 	}
 
 	app := &cli.App{
