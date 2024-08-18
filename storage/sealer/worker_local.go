@@ -651,6 +651,7 @@ func (l *LocalWorker) GenerateWindowPoSt(ctx context.Context, ppt abi.Registered
 }
 
 func (l *LocalWorker) GenerateWindowPoStAdv(ctx context.Context, ppt abi.RegisteredPoStProof, mid abi.ActorID, sectors []storiface.PostSectorChallenge, partitionIdx int, randomness abi.PoStRandomness, allowSkip bool) (storiface.WindowPoStResult, error) {
+	log.Infow("----GenerateWindowPoStAdv", "sectors", len(sectors), "partitionIdx", partitionIdx)
 	sb, err := l.executor(l)
 	if err != nil {
 		return storiface.WindowPoStResult{}, err
@@ -662,6 +663,7 @@ func (l *LocalWorker) GenerateWindowPoStAdv(ctx context.Context, ppt abi.Registe
 	var wg sync.WaitGroup
 	wg.Add(len(sectors))
 
+	sectorLen := len(sectors)
 	vproofs := make([][]byte, len(sectors))
 
 	for i, s := range sectors {
@@ -703,9 +705,12 @@ func (l *LocalWorker) GenerateWindowPoStAdv(ctx context.Context, ppt abi.Registe
 			}
 
 			vproofs[i] = vanilla
+
+			log.Infow("----SingleVanillaProof.process", "i", i, "len", sectorLen)
 		}(i, s)
 	}
 	wg.Wait()
+	log.Infow("----SingleVanillaProof.done", "partitionIdx", partitionIdx)
 
 	if len(skipped) > 0 && !allowSkip {
 		// This should happen rarely because before entering GenerateWindowPoSt we check all sectors by reading challenges.
@@ -732,7 +737,9 @@ func (l *LocalWorker) GenerateWindowPoStAdv(ctx context.Context, ppt abi.Registe
 	vproofs = vproofs[:len(vproofs)-skippedSoFar]
 
 	// compute the PoSt!
+	log.Infow("----GenerateWindowPoStWithVanilla.before", "partitionIdx", partitionIdx)
 	res, err := sb.GenerateWindowPoStWithVanilla(ctx, ppt, mid, randomness, vproofs, partitionIdx)
+	log.Infow("----GenerateWindowPoStWithVanilla.after", "partitionIdx", partitionIdx)
 	r := storiface.WindowPoStResult{
 		PoStProofs: res,
 		Skipped:    skipped,
