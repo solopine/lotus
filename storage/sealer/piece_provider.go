@@ -31,6 +31,7 @@ type PieceProvider interface {
 	// The number of bytes that can be read is pieceSize-startOffset
 	ReadPiece(ctx context.Context, sector storiface.SectorRef, pieceOffset storiface.UnpaddedByteIndex, pieceSize abi.UnpaddedPieceSize, ticket abi.SealRandomness, unsealed cid.Cid) (storiface.Reader, bool, error)
 	IsUnsealed(ctx context.Context, sector storiface.SectorRef, offset storiface.UnpaddedByteIndex, size abi.UnpaddedPieceSize) (bool, error)
+	ReadTxPieceRecords(ctx context.Context, sector storiface.SectorRef) (io.ReadCloser, error)
 }
 
 var _ PieceProvider = &pieceProvider{}
@@ -227,6 +228,10 @@ func (p *pieceProvider) ReadPiece(ctx context.Context, sector storiface.SectorRe
 	log.Debugf("returning reader to read unsealed piece, sector=%+v, pieceOffset=%d, size=%d", sector, pieceOffset, size)
 
 	return r, uns, nil
+}
+
+func (p *pieceProvider) ReadTxPieceRecords(ctx context.Context, sector storiface.SectorRef) (io.ReadCloser, error) {
+	return p.storage.ReaderSeq(ctx, sector, storiface.FTUnsealed)
 }
 
 var _ storiface.Reader = &pieceReader{}
