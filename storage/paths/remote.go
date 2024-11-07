@@ -489,7 +489,9 @@ func (r *Remote) readRemote(ctx context.Context, url string, offset, size abi.Pa
 	if r.auth != nil {
 		req.Header = r.auth.Clone()
 	}
-	req.Header.Set("Range", fmt.Sprintf("bytes=%d-%d", offset, offset+size-1))
+	if size > 0 {
+		req.Header.Set("Range", fmt.Sprintf("bytes=%d-%d", offset, offset+size-1))
+	}
 	req = req.WithContext(ctx)
 
 	resp, err := http.DefaultClient.Do(req)
